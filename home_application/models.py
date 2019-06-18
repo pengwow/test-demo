@@ -9,4 +9,24 @@ an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express o
 See the License for the specific language governing permissions and limitations under the License.
 """
 
-# from django.db import models
+from django.db import models
+
+
+class TEST(models.Model):
+    A = models.CharField(u"功能code", max_length=64, unique=True)
+    B = models.IntegerField(u"ss")
+    C = models.TextField()
+
+    class Meta:
+        db_table = 'lp_test'
+
+
+class HostDisk(models.Model):
+    host_name = models.CharField(max_length=64)
+    host_path = models.CharField(max_length=64)
+    os = models.CharField(max_length=64)
+    host_ip = models.CharField(max_length=64)
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'host'

@@ -14,6 +14,12 @@ from django.conf.urls import patterns
 urlpatterns = patterns(
     'home_application.views',
     (r'^$', 'home'),
+    (r'^submit_template/$', 'submit_template'),
     (r'^dev-guide/$', 'dev_guide'),
     (r'^contactus/$', 'contactus'),
+    (r'^tijiao/$', 'tijiao'),
+    # 作业二
+    (r'^host_disk/$', 'host_disk'),
+    (r'^host_tijiao/$', 'host_tijiao'),
+
 )
