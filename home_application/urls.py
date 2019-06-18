@@ -22,4 +22,7 @@ urlpatterns = patterns(
     (r'^host_disk/$', 'host_disk'),
     (r'^host_tijiao/$', 'host_tijiao'),
 
+    (r'^host_script/$', 'host_script'),
+    (r'^script_tijiao/$', 'script_tijiao'),
+
 )

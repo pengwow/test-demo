@@ -11,8 +11,10 @@ See the License for the specific language governing permissions and limitations 
 
 from common.mymako import render_mako_context, render_json
 from blueking.component.shortcuts import get_client_by_request
-from models import TEST,HostDisk
+from models import TEST, HostDisk,ScriptExecInfo
 import json
+import base64
+
 
 def home(request):
     """
@@ -66,7 +68,7 @@ def tijiao(request):
     print(type(data))
     sss = TEST(**data)
     sss.save()
-    return render_json({"DATA":"AAAAAAAA"})
+    return render_json({"DATA": "AAAAAAAA"})
 
 
 def host_disk(request):
@@ -87,6 +89,7 @@ def host_disk(request):
                                {'host_all': re_list}
                                )
 
+
 def host_tijiao(request):
     data = request.body
     print(type(data))
@@ -94,4 +97,60 @@ def host_tijiao(request):
 
     host = HostDisk(**data)
     host.save()
-    return render_json({"status":"OK"})
+    return render_json({"status": "OK"})
+
+
+def host_script(request):
+    # 根据作业id查询日志
+    data = ScriptExecInfo.objects.all()
+    client = get_client_by_request(request)
+    script_all = list()
+    for item in data:
+        temp_dict = dict()
+        kwargs = {}
+        kwargs['bk_biz_id'] = item.bk_biz_id
+        kwargs['job_instance_id'] = item.job_instance_id
+        result = client.job.get_job_instance_log(kwargs)
+        log_content = result['data'][0]['step_results'][0]['ip_logs'][0]['log_content']
+        temp_dict['host_ip'] = item.host_ip
+        temp_dict['log_content'] = log_content
+        temp_dict['script_content'] = item.script_content
+        temp_dict['create_time'] = item.create_time
+        script_all.append(temp_dict)
+
+    return render_mako_context(request,
+                               '/home_application/host_script.html',
+                               {'script_all':script_all},
+                               )
+
+
+def script_tijiao(request):
+    try:
+        print(request.user.username)
+    except Exception as e:
+        print(str(e))
+    data = json.loads(request.body)
+    client = get_client_by_request(request)
+    kwargs = {}
+    result = client.cc.search_business(kwargs)
+    bk_biz_id = result['data']['info'][0]['bk_biz_id']
+
+
+
+    script_content = base64.b64encode(data['script_content']).decode("utf-8")
+    kwargs = {}
+    kwargs['bk_biz_id'] = bk_biz_id
+    kwargs['script_content'] = script_content
+    kwargs["account"] = "root"
+    kwargs['ip_list'] = [{'bk_cloud_id':0,"ip":data['host_ip']}]
+    result = client.job.fast_execute_script(kwargs)
+
+    script_dict = dict()
+    script_dict["host_ip"] = data['host_ip']
+    script_dict["script_content"] = data['script_content']
+    script_dict["job_instance_id"] = result['data']['job_instance_id']
+    script_dict['bk_biz_id'] = bk_biz_id
+    scriptexecinfo = ScriptExecInfo(**script_dict)
+    scriptexecinfo.save()
+
+    return render_json({"status": "OK"})

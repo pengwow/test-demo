@@ -30,3 +30,18 @@ class HostDisk(models.Model):
 
     class Meta:
         db_table = 'host'
+
+
+class ScriptExecInfo(models.Model):
+    script_content = models.CharField(max_length=255)
+    bk_biz_id = models.CharField(max_length=64)
+    job_instance_id = models.CharField(max_length=64)
+    host_ip = models.CharField(max_length=64)
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'script_exec_info'
+
+##
+##makemigrations
+##    migrate
