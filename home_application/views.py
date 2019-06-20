@@ -168,7 +168,7 @@ def upload_file(request):
         _file = files.get(item)
         print(_file.name)
         print(_file.size)
-        with open('d://' + str(_file.name), 'wb') as fd:
+        with open('./' + str(_file.name), 'wb') as fd:
             fd.write(_file.file.read())
     return render_json({"status": "OK"})
 
@@ -182,7 +182,7 @@ def download_file(request):
     from django.http import FileResponse
     # 接收文件名请求
     file_name = request.GET.get('filename')
-    fd = open('d://' + file_name, 'rb')
+    fd = open('./' + file_name, 'rb')
     response = FileResponse(fd)
     response['Content-Type'] = 'application/octet-stream'
     response['Content-Disposition'] = 'attachment;filename="%s"' % file_name
