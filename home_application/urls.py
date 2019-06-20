@@ -25,4 +25,11 @@ urlpatterns = patterns(
     (r'^host_script/$', 'host_script'),
     (r'^script_tijiao/$', 'script_tijiao'),
 
+    # 其他
+    (r'^other/$', 'other'),
+    # ##文件上传
+    (r'^other/upload_file/$', 'upload_file'),
+    # ## 文件下载
+    (r'^other/download/$', 'download_file'),
+
 )

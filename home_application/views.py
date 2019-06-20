@@ -11,7 +11,8 @@ See the License for the specific language governing permissions and limitations 
 
 from common.mymako import render_mako_context, render_json
 from blueking.component.shortcuts import get_client_by_request
-from models import TEST, HostDisk,ScriptExecInfo
+from django.views.decorators.csrf import csrf_exempt
+from models import TEST, HostDisk, ScriptExecInfo
 import json
 import base64
 
@@ -120,7 +121,7 @@ def host_script(request):
 
     return render_mako_context(request,
                                '/home_application/host_script.html',
-                               {'script_all':script_all},
+                               {'script_all': script_all},
                                )
 
 
@@ -135,14 +136,12 @@ def script_tijiao(request):
     result = client.cc.search_business(kwargs)
     bk_biz_id = result['data']['info'][0]['bk_biz_id']
 
-
-
-    script_content = base64.b64encode(data['script_content']).decode("utf-8")
-    kwargs = {}
+    script_content = base64.b64encode(data['script_content'])
+    kwargs = dict()
     kwargs['bk_biz_id'] = bk_biz_id
     kwargs['script_content'] = script_content
     kwargs["account"] = "root"
-    kwargs['ip_list'] = [{'bk_cloud_id':0,"ip":data['host_ip']}]
+    kwargs['ip_list'] = [{'bk_cloud_id': 0, "ip": data['host_ip']}]
     result = client.job.fast_execute_script(kwargs)
 
     script_dict = dict()
@@ -154,3 +153,38 @@ def script_tijiao(request):
     scriptexecinfo.save()
 
     return render_json({"status": "OK"})
+
+
+# ####################其他
+def other(request):
+    return render_mako_context(request, '/home_application/other.html')
+
+
+@csrf_exempt  # 注意：需要添加此装饰器
+def upload_file(request):
+    # 接收的为文件列表，需要遍历操作
+    files = request.FILES
+    for item in files:
+        _file = files.get(item)
+        print(_file.name)
+        print(_file.size)
+        with open('d://' + str(_file.name), 'wb') as fd:
+            fd.write(_file.file.read())
+    return render_json({"status": "OK"})
+
+
+def download_file(request):
+    """
+    文件下载
+    :param request:
+    :return: 文件response
+    """
+    from django.http import FileResponse
+    # 接收文件名请求
+    file_name = request.GET.get('filename')
+    fd = open('d://' + file_name, 'rb')
+    response = FileResponse(fd)
+    response['Content-Type'] = 'application/octet-stream'
+    response['Content-Disposition'] = 'attachment;filename="%s"' % file_name
+
+    return response
