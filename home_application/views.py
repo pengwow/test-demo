@@ -159,7 +159,6 @@ def script_tijiao(request):
 def other(request):
     return render_mako_context(request, '/home_application/other.html')
 
-
 @csrf_exempt  # 注意：需要添加此装饰器
 def upload_file(request):
     # 接收的为文件列表，需要遍历操作
